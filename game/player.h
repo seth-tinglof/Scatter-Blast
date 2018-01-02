@@ -37,4 +37,5 @@ void resetPlayerTexture(Player *player);
 /*Rescales the players position and motion based on a change in resolution.*/
 void rescalePlayerPositionAndMotion(Player *player, double *scale);
 
+/*Rescales the speed that the player moves based on a change in resolution.*/
 void rescalePlayerSpeed(double *scale);

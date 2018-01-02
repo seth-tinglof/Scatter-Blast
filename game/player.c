@@ -5,11 +5,13 @@
 
 double PLAYER_SPEED = 2.5;
 
+/*Sets the x and y velocity of the passed player.*/
 void setPlayerVelocity(Player *player, int xVelocity, int yVelocity) {
 	player->xVelocity = xVelocity;
 	player->xVelocity = yVelocity;
 }
 
+/*Creates the texture for the player and returns a pointer to htis texture.*/
 SDL_Texture *createPlayerTexture() {
 	PLAYER_WIDTH = SCREEN_WIDTH / 17;
 	PLAYER_HEIGHT = PLAYER_WIDTH;

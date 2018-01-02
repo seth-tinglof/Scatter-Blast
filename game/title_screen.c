@@ -7,6 +7,7 @@
 SDL_Texture *titleScreenTexture;
 int viewTitleScreen;
 
+/*Creates the texture for the title screen and stores a pointer to this texture in the variable titleScreenTexture.*/
 void createTitleWindow() {
 	SDL_Surface *title = SDL_LoadBMP("title_screen.bmp");
 	if (title == NULL) {
@@ -17,8 +18,10 @@ void createTitleWindow() {
 	drawScreen();
 }
 
+/*Handles the events for player input in the title screen.*/
 void titleEventHandling() {
 	SDL_Event event;
+	/*Toggle fullscreen if player hits alt+enter.*/
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN && (event.key.keysym.scancode == SDL_SCANCODE_RETURN || event.key.keysym.scancode == SDL_SCANCODE_LALT || event.key.keysym.scancode == SDL_SCANCODE_RALT)) {
 			const Uint8 *state = SDL_GetKeyboardState(0);
@@ -31,13 +34,13 @@ void titleEventHandling() {
 				createTitleWindow();
 			}
 		}
-		else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+		else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {				//Player hits play.
 			if (event.button.x >= SCREEN_WIDTH / 2.1573 && event.button.x <= SCREEN_WIDTH / 1.8641 &&
 				event.button.y >= SCREEN_HEIGHT / 1.2632 && event.button.y <= SCREEN_HEIGHT / 1.1551) {
 				viewTitleScreen = 0;
 			}
 		}
-		else if (event.type == SDL_QUIT) {
+		else if (event.type == SDL_QUIT) {		     //Player attempts to close the window.
 			SDL_DestroyTexture(titleScreenTexture);
 			quitWindow();
 			exit(0);

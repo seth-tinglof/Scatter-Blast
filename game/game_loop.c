@@ -66,6 +66,7 @@ int lastEnemySpawn;
 Enemy *enemyLists[] = { upEnemies, rightEnemies, downEnemies, leftEnemies };
 int *enemyCounts[] = { &upEnemyCount, &rightEnemyCount, &downEnemyCount, &leftEnemyCount };
 
+/*Destroy and recreate every texture used in the game. Intended to be called when the window changes size.*/
 void resetAllTextures() {
 	extern void resetAllEnemyTextureLists();
 	resetPlayerTexture(player);
@@ -75,6 +76,7 @@ void resetAllTextures() {
 	resetAllEnemyTextureLists();
 }
 
+/*Rescale the Positions of every enemy, projectile, and the player when the window changes size. Scale should be a double array of size three passed to toggleFullScreen.*/
 void rescaleAllPositions(double *scale) {
 	extern void rescaleAllEnemyLists(double *scale);
 	rescalePlayerPositionAndMotion(player, scale);
@@ -85,6 +87,7 @@ void rescaleAllPositions(double *scale) {
 	rescaleProjectileSpeed(scale);
 }
 
+/*Toggles the game between Fullscreen and windowed, resetting every texture.*/
 void toggleFullscreenAndResetTextures() {
 	double scale[3];
 	toggleFullscreen(scale);
@@ -92,14 +95,16 @@ void toggleFullscreenAndResetTextures() {
 	rescaleAllPositions(scale);
 }
 
+/*Return the number of directions that the player is shooting in. Useful for limiting the number of directions in which they can fire.*/
 int getNumDirectionsShooting() {
 	return shootUp + shootRight + shootDown + shootLeft;
 }
 
+/*Handles the events for player input during the game.*/
 void eventHandling() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_KEYDOWN) {
+		if (event.type == SDL_KEYDOWN) {					//Player presses a button.
 			if (event.key.keysym.scancode == SDL_SCANCODE_W)
 				up = 1;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_S)
@@ -116,13 +121,13 @@ void eventHandling() {
 				shootDown = 1;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT && getNumDirectionsShooting() < 2)
 				shootLeft = 1;
-			else if (event.key.keysym.scancode == SDL_SCANCODE_RETURN || event.key.keysym.scancode == SDL_SCANCODE_LALT || event.key.keysym.scancode == SDL_SCANCODE_RALT) {
+			else if (event.key.keysym.scancode == SDL_SCANCODE_RETURN || event.key.keysym.scancode == SDL_SCANCODE_LALT || event.key.keysym.scancode == SDL_SCANCODE_RALT) {	//player hits alt+enter
 				const Uint8 *state = SDL_GetKeyboardState(0);
 				if (state[SDL_SCANCODE_RETURN] && (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]))
 					toggleFullscreenAndResetTextures();
 			}
 		}
-		else if (event.type == SDL_KEYUP) {
+		else if (event.type == SDL_KEYUP) {						//player releases a button.
 			if (event.key.keysym.scancode == SDL_SCANCODE_W)
 				up = 0;
 			else if (event.key.keysym.scancode == SDL_SCANCODE_S)
@@ -140,13 +145,14 @@ void eventHandling() {
 			else if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
 				shootLeft = 0;
 		}
-		else if (event.type == SDL_QUIT) {
+		else if (event.type == SDL_QUIT) {					//player attempts to close the window.
 			playing = 0;
 			quit = 1;
 		}
 	}
 }
 
+/*Move the player. Passes the time of this frame and the last in miliseconds.*/
 void playerMove(int lastTime, int curTime) {
 	acceleratePlayer(player, left, up, right, down);
 	movePlayer(player);
@@ -172,6 +178,7 @@ void playerMove(int lastTime, int curTime) {
 	}
 }
 
+/*Remove a projectile at a specific index from a list of projectiles.  Pass a pointer to the size of the lists; the size will be updated if the list changes size*/
 void removeProjectileFromList(int index, int *count, Projectile **list) {
 	deallocateProjectile(list[index]);
 	for (int i = index; i < *count -  1; i++) {
@@ -180,6 +187,7 @@ void removeProjectileFromList(int index, int *count, Projectile **list) {
 	*count -= 1;
 }
 
+/*Check if any Projectile in the arguement list hit any enemy in the arguement list. Pass pointers to the size of the lists; the size will be updated if the list changes size.*/
 projectileListHitEnemyListDetection(int direction, int *countProj, Projectile **list1, int *countEnemy, Enemy **list2) {
 	Polygon *projShape;
 	if (direction == DIRECTION_LEFT)
@@ -202,6 +210,7 @@ projectileListHitEnemyListDetection(int direction, int *countProj, Projectile **
 	}
 }
 
+/*Check if any enemy in the list hit the player. If true the game ends (playing is set to zero).*/
 void enemiesListHitPlayerDetection(int count, Enemy **list) {
 	for (int i = 0; i < count; i++) {
 		if (polygonsIntersect(player->playerShape, list[i]->shape, player->xPos, player->yPos, list[i]->xPos, list[i]->yPos)) {
@@ -210,12 +219,15 @@ void enemiesListHitPlayerDetection(int count, Enemy **list) {
 	}
 }
 
+/*Call enemiesListHitPlayerDetection on all enemy lists.*/
 void allEnemyListsHitPlayerDetection() {
 	for (int i = 0; i < ENEMY_LISTS; i++) {
 		enemiesListHitPlayerDetection(*enemyCounts[i], enemyLists[i]);
 	}
 }
 
+/*Move all projectiles in a list. The projectiles are removed from the list if they have been active too long. A pointer to the projectile count is passed and
+updated the count is updated by this function if necessary.*/
 void moveProjectileList(int *count, Projectile **list, int curTime) {
 	for (int i = 0; i < *count; i++) {
 		if (moveProjectile(*(list + i), curTime)) {
@@ -224,12 +236,14 @@ void moveProjectileList(int *count, Projectile **list, int curTime) {
 	}
 }
 
+/*Call moveProjectileList on all projectile lists.*/
 void moveAllProjectileLists(int curTime) {
 	for (int i = 0; i < PROJ_LISTS; i++) {
 		moveProjectileList(projCounts[i], projLists[i], curTime);
 	}
 }
 
+/*Remove an enemy at a specific index from a list of projectiles.  Pass a pointer to the size of the list; the size will be updated if the list changes size.*/
 void removeEnemyFromList(int index, int *count, Enemy **list) {
 	deallocateEnemy(list[index]);
 	for (int i = index; i < *count - 1; i++) {
@@ -248,6 +262,7 @@ void projectilesMove(int curTime, int lastTime) {
 	projectileListHitEnemyListDetection(DIRECTION_DOWN, &downProjCount, downProjectiles, &downEnemyCount, downEnemies);
 }
 
+/*Move and accelerate all enemies in a list of enemies.*/
 void moveAndAccelerateEnemyList(int *count, Enemy **list, int curTime) {
 	for (int i = 0; i < *count; i++) {
 		if (enemyShouldBeDeleted(*(list + i), curTime)) {
@@ -260,21 +275,25 @@ void moveAndAccelerateEnemyList(int *count, Enemy **list, int curTime) {
 	}
 }
 
+/*Call moveAndAccelerateEnemyList on all enemy lists.*/
 void moveAndAccelerateAllEnemyLists(int curTime) {
 	for (int i = 0; i < ENEMY_LISTS; i++) 
 		moveAndAccelerateEnemyList(enemyCounts[i], enemyLists[i], curTime);
 }
 
+/*Reset the texture of every enemy in a list of enemies.*/
 void resetEnemyTextureList(int count, Enemy **list) {
 	for (int i = 0; i < count; i++) 
 		resetEnemyTexture(list[i]);
 }
 
+/*Call resetEnemyTextureList on every list of enemies.*/
 void resetAllEnemyTextureLists() {
 	for (int i = 0; i < ENEMY_LISTS; i++)
 		resetEnemyTextureList(*enemyCounts[i], enemyLists[i]);
 }
 
+/*Move all enemies.*/
 void enemyMove(int curTime, int lastTime) {
 	if (curTime - lastEnemySpawn > ENEMY_SPAWN_DELAY) {
 		Enemy *newEnemy = createEnemy(curTime);
@@ -309,12 +328,14 @@ void enemyMove(int curTime, int lastTime) {
 	moveAndAccelerateAllEnemyLists(curTime);
 }
 
+/*Move all entities in the game.*/
 void moveEntities(int lastTime, int curTime) {
 	playerMove(lastTime, curTime);
 	projectilesMove(curTime, lastTime);
 	enemyMove(curTime, lastTime);
 }
 
+/*Render a list of projectiles. All projectiles in the list are assumed to be going in the same direction. This direction is passed as an argument.*/
 void renderProjectileList(int direction, int count, Projectile **list) {
 	SDL_Texture *projTex;
 	if (direction == DIRECTION_LEFT)
@@ -331,6 +352,7 @@ void renderProjectileList(int direction, int count, Projectile **list) {
 	}
 }
 
+/*Render all of the projectiles.*/
 void renderProjectiles() {
 	renderProjectileList(DIRECTION_UP, upProjCount, upProjectiles);
 	renderProjectileList(DIRECTION_RIGHT, rightProjCount, rightProjectiles);
@@ -338,21 +360,25 @@ void renderProjectiles() {
 	renderProjectileList(DIRECTION_LEFT, leftProjCount, leftProjectiles);
 }
 
+/*Render all enemies in a list of enemies.*/
 void renderEnemyList(int count, Enemy **list) {
 	for (int i = 0; i < count; i++) {
 		drawTexture((*(list + i))->tex, (int)(*(list + i))->xPos, (int)(*(list + i))->yPos, ENEMY_WIDTH, ENEMY_HEIGHT);
 	}
 }
 
+/*call renderEnemyList on all lists of enemies.*/
 void renderAllEnemyLists() {
 	for (int i = 0; i < ENEMY_LISTS; i++)
 		renderEnemyList(*enemyCounts[i], enemyLists[i]);
 }
 
+/*Render every enemy. Calls renderAllEnemyLists.*/
 void renderEnemies() {
 	renderAllEnemyLists();
 }
 
+/*Renders on frame of the game.*/
 void renderFrame() {
 	clearScreen();
 	drawTexture(tex, (int)player->xPos, (int)player->yPos, PLAYER_WIDTH, PLAYER_HEIGHT);
@@ -361,6 +387,7 @@ void renderFrame() {
 	drawScreen();
 }
 
+/*Sets initial values for all variables in the game.*/
 void initializeVariables() {
 	playing = 1;
 	quit = 0;
@@ -387,6 +414,7 @@ void initializeVariables() {
 	lastEnemySpawn = 0;
 }
 
+/*Runs the main game loop.*/
 void runGameLoop() {
 	initializeVariables();
 	if (!titleSeen) {
@@ -421,21 +449,25 @@ void runGameLoop() {
 	}
 }
 
+/*Rescales a list of enemies based on a change in window resolution.*/
 void rescaleEnemyList(int count, double *scale, Enemy **list) {
 	for (int i = 0; i < count; i++) 
 		rescaleEnemyPositionAndMotion(list[i], scale);
 }
 
+/*calls rescaleEnemyList on all lists of enemies.*/
 void rescaleAllEnemyLists(double *scale) {
 	for (int i = 0; i < ENEMY_LISTS; i++)
 		rescaleEnemyList(*enemyCounts[i], scale, enemyLists[i]);
 }
 
+/*Rescales a list of projectiles based on a change in window resolution.*/
 void rescaleProjectileList(int count, double *scale, Projectile **list) {
 	for (int i = 0; i < count; i++) 
 		rescaleProjectilePositionAndMotion(list[i], scale);
 }
 
+/*Calls rescaleProjectileList on all projectile lists.*/
 void rescaleAllProjectileLists(double *scale) {
 	for (int i = 0; i < PROJ_LISTS; i++)
 		rescaleProjectileList(*projCounts[i], scale, projLists[i]);

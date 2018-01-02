@@ -8,6 +8,7 @@ SDL_Texture *endScreenTexture;
 int viewEndScreen;
 int quit = 0;
 
+/*Creates the Texture for the game end screen. A pointer to this texture is stored in the variable endScreenTexture.*/
 void createEndScreen() {
 	SDL_Surface *end = SDL_LoadBMP("end_screen.bmp");
 	if (end == NULL) {
@@ -18,9 +19,11 @@ void createEndScreen() {
 	drawScreen();
 }
 
+/*Handles the events for player input during the event screen.*/
 void endEventHandling() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
+		/*Toggle fullscreen if player hits alt+enter.*/
 		if (event.type == SDL_KEYDOWN && (event.key.keysym.scancode == SDL_SCANCODE_RETURN || event.key.keysym.scancode == SDL_SCANCODE_LALT || event.key.keysym.scancode == SDL_SCANCODE_RALT)) {
 			const Uint8 *state = SDL_GetKeyboardState(0);
 			if (state[SDL_SCANCODE_RETURN] && (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT])) {
@@ -32,17 +35,17 @@ void endEventHandling() {
 				createEndScreen();
 			}
 		}
-		else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+		else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {				//Player hit quit.
 			if (event.button.x >= SCREEN_WIDTH / 2.2967 && event.button.x <= SCREEN_WIDTH / 1.8605 &&
 				event.button.y >= SCREEN_HEIGHT / 1.519 && event.button.y <= SCREEN_HEIGHT / 1.34) {
 				quit = 1;
 			}
-			else if (event.button.x >= SCREEN_WIDTH / 2.2967 && event.button.x <= SCREEN_WIDTH / 1.8605 &&
+			else if (event.button.x >= SCREEN_WIDTH / 2.2967 && event.button.x <= SCREEN_WIDTH / 1.8605 &&	//Player hit play again.
 				event.button.y >= SCREEN_HEIGHT / 1.9354 && event.button.y <= SCREEN_HEIGHT / 1.6564) {
 				viewEndScreen = 0;
 			}
 		}
-		if (event.type == SDL_QUIT || quit) {
+		if (event.type == SDL_QUIT || quit) {																//Player attempts to close the window.
 			SDL_DestroyTexture(endScreenTexture);
 			quitWindow();
 			exit(0);
