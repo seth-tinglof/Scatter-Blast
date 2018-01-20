@@ -7,7 +7,7 @@ do with visual studio. A fairly comprehensive guide on how to do this can be fou
 I wrote and compiled this project using windows 10, but in theory one should be able to compile and run the game on most operating systems 
 as SDL provides fairly universal support. I included a compiled version of the game in the folder named 'scatter blast'. This folder also contains the bitmap images that you will need to run the game and a copy of the 32-bit SDL dll.
 
-The game also utalizes a random number generation library found here http://www.pcg-random.org/. This library is liscensed under apache 2.0 which requires the full text of the liscense to be included in any redistribution, so I will include this below. This project, however, does not use this liscense.
+The game also utalizes a random number generation library found here http://www.pcg-random.org/. This library is liscensed under apache 2.0 which requires the full text of the liscense to be included in any redistribution, so I will include this below. This liscense only applies to the files pcg_basic.c and pcg_basic.h.
 
                                   Apache License
                            Version 2.0, January 2004
