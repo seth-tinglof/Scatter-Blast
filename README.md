@@ -9,4 +9,4 @@ as SDL provides fairly universal support. I included a compiled version of the g
 
 The game also utalizes a random number generation library found here http://www.pcg-random.org/. This library is liscensed under apache 2.0 which requires the full text of the liscense to be included in any redistribution, so I will include this in the file "pcg liscense.txt". This liscense only applies to the files pcg_basic.c and pcg_basic.h.
 
-![Screenshot](https://github.com/seth-tinglof/Scatter-Blast/screen_cap.png)
+![Screenshot](https://github.com/seth-tinglof/Scatter-Blast/blob/master/screen_cap.png)
